@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLUX Ecosystem - Premium Core</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .phone-container { width: 100%; max-width: 420px; background: #000000; height: 100vh; display: flex; flex-direction: column; position: relative; padding: 10px 15px 80px 15px; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; height: 40px; margin-bottom: 5px; }
+        .brand-badge { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #00ff87, #60efff); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #000000; box-shadow: 0 0 10px rgba(0,255,135,0.2); }
+        .btn-connect { background: #ffffff; color: #000000; border: none; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .btn-connect.connected { background: #00ff87; color: #000; font-weight: 800; }
+        .app-page { display: none; flex-direction: column; flex: 1; overflow-y: auto; padding-bottom: 10px; height: calc(100vh - 135px); }
+        .app-page.active { display: flex; }
+        .plux-hero { text-align: center; margin-top: 10px; margin-bottom: 10px; }
+        .plux-logo-box { width: 85px; height: 85px; background: linear-gradient(135deg, #00ff87, #60efff); border-radius: 24px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: #000; box-shadow: 0 0 25px rgba(0,255,135,0.2); }
+        .balance-card { text-align: center; background: rgba(15,15,15,0.6); padding: 15px 10px; border-radius: 18px; border: 1px solid #151515; margin-bottom: 15px; }
+        .bal-lbl { font-size: 10px; color: #888888; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .bal-val { font-size: 32px; font-weight: 900; margin-top: 4px; color: #ffffff; }
+        .cipher-grid { display: flex; gap: 10px; }
+        .btn-cipher-core { flex: 1; background: #111111; color: #ffffff; border: 1px solid #222; padding: 12px 0; border-radius: 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .combo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+        .combo-node { background: #111111; border: 1px solid #222; border-radius: 12px; padding: 12px 5px; text-align: center; cursor: pointer; }
+        .combo-node.selected { border-color: #00ff87; background: rgba(0,255,135,0.03); }
+        .node-icon { font-size: 24px; margin-bottom: 4px; }
+        .node-title { font-size: 11px; font-weight: 600; color: #aaa; }
+        .node-status { font-size: 9px; color: #00ff87; margin-top: 4px; font-weight: 700; text-transform: uppercase; }
+        .btn-claim-nodes { background: linear-gradient(90deg, #00ff87, #60efff); color: #000; border: none; width: 100%; padding: 12px 0; border-radius: 14px; font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        .btn-claim-nodes:disabled { background: #111; color: #444; border: 1px solid #222; cursor: default; }
+        .task-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .task-card-premium { background: #111111; border: 1px solid #222; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .t-media-icon { font-size: 20px; margin-right: 8px; width: 32px; height: 32px; background: #161616; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .t-meta { flex: 1; }
+        .t-meta h4 { font-size: 12px; font-weight: 600; color: #fff; }
+        .t-meta p { font-size: 11px; color: #00ff87; font-weight: 700; }
+        .btn-task-action { background: #222222; color: #ffffff; border: none; padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .btn-task-action.claimable { background: #00ff87; color: #000; font-weight: 800; }
+        .btn-task-action.done { background: transparent; color: #444; border: 1px solid #222; cursor: default; }
+        .rank-box { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .rank-item { background: #0d0d0d; border: 1px solid #161616; border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; }
+        .rank-num { font-size: 14px; font-weight: 800; width: 25px; color: #888; }
+        .rank-user-info { flex: 1; display: flex; align-items: center; gap: 8px; }
+        .rank-avatar { width: 26px; height: 26px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #aaa; }
+        .rank-name { font-size: 12px; font-weight: 600; }
+        .rank-score { font-size: 12px; font-weight: 700; color: #00ff87; }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 65px; background: #0a0a0a; border-top: 1px solid #111; display: flex; justify-content: space-around; align-items: center; padding-bottom: 4px; z-index: 999; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #444444; background: none; border: none; font-size: 10px; font-weight: 700; width: 50px; cursor: pointer; }
+        .nav-item.active { color: #00ff87; }
+        .nav-icon { font-size: 16px; }
+    </style>
+</head>
+<body>
+<div class="phone-container">
+    <div class="top-nav">
+        <div class="brand-badge"><span>PLUX NODE</span></div>
+        <button class="btn-connect" id="topWalletBtn" onclick="triggerWalletConnect()">Connect wallet</button>
+    </div>
+    <div id="page-home" class="app-page active">
+        <div class="plux-hero">
+            <div class="plux-logo-box">P</div>
+            <h2 style="font-size: 20px; font-weight: 800;">Ecosystem Ledger</h2>
+            <p style="color:#666; font-size:11px; margin-top:2px;">Premium Token Verification Node</p>
+        </div>
+        <div class="balance-card">
+            <div class="bal-lbl">Farmed Balance Allocation</div>
+            <div class="bal-val" id="totalBalanceDisplay">5,000 $PLUX</div>
+        </div>
+        <div class="cipher-grid">
+            <button class="btn-cipher-core" onclick="validateSecretCode(1)">Cipher 01 (+5K)</button>
+            <button class="btn-cipher-core" onclick="validateSecretCode(2)">Cipher 02 (+5K)</button>
+        </div>
+    </div>
+    <div id="page-combo" class="app-page">
+        <h2 style="font-size:18px; font-weight:800;">Daily Combo Nodes</h2>
+        <p style="color:#555; font-size:11px; margin-bottom:10px;">Synchronize all three premium cards to unlock bonus.</p>
+        <div class="combo-grid">
+            <div class="combo-node" id="cn1" onclick="acquireComboNode('cn1')">
+                <div class="node-icon">🛰️</div><div class="node-title">Quantum</div><div class="node-status" id="st-cn1">Available</div>
+            </div>
+            <div class="combo-node" id="cn2" onclick="acquireComboNode('cn2')">
+                <div class="node-icon">⛓️</div><div class="node-title">Shard</div><div class="node-status" id="st-cn2">Available</div>
+            </div>
+            <div class="combo-node" id="cn3" onclick="acquireComboNode('cn3')">
+                <div class="node-icon">🌌</div><div class="node-title">Plux V2</div><div class="node-status" id="st-cn3">Available</div>
+            </div>
+        </div>
+        <button class="btn-claim-nodes" id="comboClaimButton" onclick="processComboPayout()" disabled>Claim 10,000 $PLUX</button>
+    </div>
+    <div id="page-tasks" class="app-page">
+        <h2 style="font-size:18px; font-weight:800;">Missions</h2>
+        <div class="task-container">
+            <div class="task-card-premium">
+                <div class="t-media-icon">📺</div>
+                <div class="t-meta"><h4>Subscribe YouTube Hub</h4><p>+15,000 $PLUX</p></div>
+                <button class="btn-task-action claimable" id="tsk1" onclick="handleMission('tsk1', 15000)">Start</button>
+            </div>
+            <div class="task-card-premium">
+                <div class="t-media-icon">🐦</div>
+                <div class="t-meta"><h4>Follow Official X Account</h4><p>+3,000 $PLUX</p></div>
+                <button class="btn-task-action claimable" id="tsk2" onclick="handleMission('tsk2', 3000)">Start</button>
+            </div>
+            <div class="task-card-premium">
+                <div class="t-media-icon">📸</div>
+                <div class="t-meta"><h4>Follow Instagram Profile</h4><p>+12,000 $PLUX</p></div>
+                <button class="btn-task-action claimable" id="tsk3" onclick="handleMission('tsk3', 12000)">Start</button>
+            </div>
+            <div class="task-card-premium">
+                <div class="t-media-icon">💬</div>
+                <div class="t-meta"><h4>Join WhatsApp Broadcast</h4><p>+4,000 $PLUX</p></div>
+                <button class="btn-task-action claimable" id="tsk4" onclick="handleMission('tsk4', 4000)">Start</button>
+            </div>
+        </div>
+    </div>
+    <div id="page-leaderboard" class="app-page">
+        <h2 style="font-size:18px; font-weight:800; margin-bottom:5px;">Leaderboard</h2>
+        <div class="rank-box">
+            <div class="rank-item">
+                <div class="rank-num">1</div>
+                <div class="rank-user-info"><div class="rank-avatar">🐋</div><div class="rank-name">CryptoWhale_7</div></div>
+                <div class="rank-score">4.8M</div>
+                
